@@ -19,16 +19,29 @@ const wss = new SocketServer({ server });
 // the ws parameter in the callback.
 wss.on('connection', (ws) => {
   console.log('Client connected');
-
+  
+  
+  
   ws.on('message',(data) => {
   	let message = JSON.parse(data);
-  	message.id = uuid();
+    if (message.type === 'postMessage'){
+        message.id = uuid();
+        message.type = 'incomingMessage'
+    }
+    if (message.type === 'postNotification'){
+      message.type = 'incomingNotification'
+    }
+    if (message.type === 'usersOnline'){
+      message.type = 'usersNotification'
+      message.content = wss.clients.size;
+    }
+  
   	console.log(message);
   	broadcastBack(message);
   	
   });
 
- 
+   
 
 
   function broadcastBack(message) {
